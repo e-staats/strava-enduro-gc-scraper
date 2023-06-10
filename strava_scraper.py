@@ -67,7 +67,9 @@ class StravaSegmentLeaderboardScraper:
 
     def _get_all_results_from_leaderboard(self) -> list:
         results = []
+        print(f"    Filtering leaderboard")
         self._filter_leaderboard_to_today()
+        print(f"    Collecting all pages...")
         while True:
             time.sleep(3)  # there's probably a better way to do this
             leaderboard = self.driver.find_element(by=By.ID, value="results")
@@ -76,24 +78,35 @@ class StravaSegmentLeaderboardScraper:
             results += leaderboard_data.values.tolist()
 
             # Either go to next page or break:
-            time.sleep(3)  # there's probably a better way to do this
-            next_button = self.driver.find_element(by=By.CLASS_NAME, value="next_page")
-            css = next_button.get_attribute("class")
-            if "disabled" in css:
+            try:
+                time.sleep(3)  # there's probably a better way to do this
+                next_button = self.driver.find_element(
+                    by=By.CLASS_NAME, value="next_page"
+                )
+                css = next_button.get_attribute("class")
+                if "disabled" in css:
+                    break
+                link = next_button.find_elements(by=By.TAG_NAME, value="a")[0]
+                link.click()
+            except Exception:
+                print(f"Failed to go to next page!")
                 break
-            link = next_button.find_elements(by=By.TAG_NAME, value="a")[0]
-            link.click()
+        print("    Collected leaderboard!")
         return results
 
     def _close_driver(self):
         self.driver.quit()
 
     def run_scraper(self):
+        print("Logging in to Strava...")
         self._log_in_to_strava()
         for segment_id in self.segment_ids:
+            print(f"Loading segment {segment_id}")
             self._load_segment_page(segment_id)
             segment_name = self._get_segment_name()
+            print(f"Loaded segment: {segment_name}. Collecting today's leaderboard...")
             self.results[segment_name] = self._get_all_results_from_leaderboard()
+        print("Finished collecting all segments!")
         self._close_driver()
 
     def get_results(self):
