@@ -9,8 +9,6 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from my_secrets import create_environment_variables
-
 
 class StravaSegmentLeaderboardScraper:
     def __init__(self, segment_ids: list[str]):
@@ -22,19 +20,12 @@ class StravaSegmentLeaderboardScraper:
         # firefox_options.add_argument("--headless")
         self.driver = webdriver.Firefox(options=firefox_options)
 
-        # Make sure the password is available
-        create_environment_variables()
-
     def _log_in_to_strava(self):
         self.driver.get("https://www.strava.com/login")
         email = self.driver.find_element(by=By.ID, value="email")
         email.clear()
-        email.send_keys("eric.k.staats@gmail.com")
+        email.send_keys(os.environ["MY_STRAVA_EMAIL"])
 
-        if not os.environ["MY_STRAVA_PASSWORD"]:
-            raise ValueError(
-                "You need to set the MY_STRAVA_PASSWORD environment variable."
-            )
         password = self.driver.find_element(by=By.ID, value="password")
         password.clear()
         password.send_keys(os.environ["MY_STRAVA_PASSWORD"])

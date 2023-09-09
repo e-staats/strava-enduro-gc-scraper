@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def print_results(leaderboard: pd.DataFrame):
-    leaderboard.to_csv("./printouts/overall.csv")
+    leaderboard.to_csv("./printouts/raw_seconds.csv")
     for column in leaderboard:
         leaderboard.sort_values(by=column, ascending=True, inplace=True)
         output = [f"Sorted by {column}\n"]
