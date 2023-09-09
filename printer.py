@@ -1,6 +1,7 @@
-import pandas as pd
-import numpy
 from pathlib import Path
+
+import numpy
+import pandas as pd
 
 
 def print_results(leaderboard: pd.DataFrame):
